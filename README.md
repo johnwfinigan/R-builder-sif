@@ -6,12 +6,12 @@ under Docker Desktop on Mac.
 
 ## How To
 
-1. Create a text file called *packages-cran.txt* containing the names of the CRAN packages
+* Create a text file called *packages-cran.txt* containing the names of the CRAN packages
 you want to include, one name per line
 
-2. Pick a name for your container. We'll use my-container-name for this example
+* Pick a name for your container. We'll use my-container-name for this example
 
-3. ./make_container.sh my-container-name
+* ./make-container.sh my-container-name
 
 A docker image tagged with your container's name will be written to your local image storage, 
 and Singularity .sif format container will be written to the current directory.
