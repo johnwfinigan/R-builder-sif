@@ -2,7 +2,7 @@
 
 set -e
 
-makesif=0
+makesif=1
 
 if [ -z "$1" ] ; then
   echo "Error - you must provide a name for your container"
