@@ -9,6 +9,8 @@ under Docker Desktop on Mac.
 * Create a text file called *packages-cran.txt* containing the names of the CRAN packages
 you want to include, one name per line
 
+* Experimental - optionally create a file called *packages-bioc.txt* with names of Bioconductor packages, as above
+
 * Pick a name for your container. We'll use my-container-name for this example
 
 * ./make-container.sh my-container-name
@@ -24,6 +26,10 @@ and Singularity .sif format container will be written to the current directory.
 
 ## Known issues
 
+* Bioconductor support is experimental and barely tested
+
+* If using Bioconductor, packages-cran.txt must exist but may be empty
+
 * Some CRAN packages need more RAM to build successfully than Docker Desktop is configured with
 by default. You may need to raise your Docker Desktop RAM and CPU limits.
 
@@ -37,10 +43,10 @@ packages / Linux dependencies that they need.
 
 ## ToDo
 
-* Add Bioconductor support
+* Better testing of Bioconductor support
 
 * Add option to turn off Singularity container generation
 
-* Add a way to change the R version without editing the Dockerfile
+* Add a way to change the R version without editing the Dockerfile, and make Bioconductor version match
 
 * Add a way to build with no cache
