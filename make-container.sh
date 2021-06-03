@@ -15,6 +15,7 @@ set -u
 if [ ! -f packages-cran.txt ] ; then
   echo "Error - could not find packages-cran.txt"
   echo "add your desired CRAN package names to packages-cran.txt, one package name per line"
+  echo "bioconductor packages must be added to packages-bioc.txt instead"
   exit 112
 fi
 

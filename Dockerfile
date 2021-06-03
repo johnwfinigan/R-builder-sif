@@ -30,6 +30,6 @@ RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/s
 
 RUN apt-get -y install libxml2-dev zlib1g-dev libssl-dev
 
-COPY tmp/R-packages-CRAN.sh /
+COPY tmp/R-packages.sh /
 
-RUN chmod 700 /R-packages-CRAN.sh && /R-packages-CRAN.sh
+RUN chmod 700 /R-packages.sh && /R-packages.sh
