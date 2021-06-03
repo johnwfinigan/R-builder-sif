@@ -38,7 +38,7 @@ docker build -t "$singularity_tag" .
 
 cd "$d"
 
-docker run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${1}.sif docker-archive://in/${savefile_name}"
+docker run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://in/${savefile_name}"
 
 set +e
 rm "$savefile" 
