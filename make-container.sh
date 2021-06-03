@@ -42,4 +42,3 @@ docker run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c 
 
 set +e
 rm "$savefile" 
-rm tmp/R-packages-CRAN.sh
