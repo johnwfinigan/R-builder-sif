@@ -37,7 +37,7 @@ if [ -f packages-bioc.txt ] ; then
   done
 
   sed -e "s/, $//" "$t2" > "$t3"
-  printf '))@\n' >> "$t3"
+  printf '), Ncpus=8)@\n' >> "$t3"
 
   cat packages-bioc.txt >> "$packagelist"
   t="$t3"
