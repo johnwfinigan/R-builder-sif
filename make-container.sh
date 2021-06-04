@@ -37,7 +37,7 @@ if [ "$makesif" -ne 0 ] ; then
   
   cd singularity
   
-  rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 )
+  rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
   docker build -t "$singularity_tag" .
   
