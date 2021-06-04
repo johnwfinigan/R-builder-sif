@@ -10,7 +10,7 @@ deb-src http://archive.ubuntu.com/ubuntu/ focal-updates universe\n' >> /etc/apt/
 
 RUN apt -y update && apt -y dist-upgrade
 
-RUN apt -y install curl locales locales-all bash tar gzip libxml2-dev zlib1g-dev libssl-dev
+RUN apt -y update && apt -y install curl locales locales-all bash tar gzip libxml2-dev zlib1g-dev libssl-dev
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
 	&& locale-gen en_US.utf8 \
@@ -19,7 +19,7 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-RUN apt -y build-dep r-base-core
+RUN apt -y update && apt -y build-dep r-base-core
 
 # Change to your desired R version
 
