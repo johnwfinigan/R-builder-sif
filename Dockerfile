@@ -33,3 +33,5 @@ COPY tmp/R-packages.sh /
 RUN chmod 700 /R-packages.sh && /R-packages.sh
 
 RUN apt -y update && apt -y dist-upgrade
+
+RUN date > /build-date
