@@ -51,7 +51,7 @@ done
 
 sed -e "s/@/\'/g" "$t" > "$outfile"
 
-if [ "$post_script != "NONE" ] ; then
+if [ "$post_script" != "NONE" ] ; then
   if [ ! -f "$post_script" ] ; then
     echo "Custom install commands script file specified, but file cannot be found, exiting" 1>&2
     exit 117
