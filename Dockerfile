@@ -21,12 +21,10 @@ ENV LANG en_US.UTF-8
 
 RUN apt -y update && apt -y build-dep r-base-core
 
-# Change to your desired R version
-
-ENV version 4.0.5
-
-RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/src/base/R-4/R-$version.tar.gz && \
-  tar zxf R-$version.tar.gz && cd R-$version/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
+ARG rmajor
+ARG rversion
+RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
+  tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/R-packages.sh /
 
