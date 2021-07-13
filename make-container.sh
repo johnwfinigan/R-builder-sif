@@ -6,8 +6,9 @@ makesif=YES
 r_version=4.1.0
 bioc_version=NONE
 post_script=NONE
+docker_cache=" "
 
-while getopts :r:sb:p: opt; do
+while getopts :r:snb:p: opt; do
   case "$opt" in
     r )
       r_version="$OPTARG"
@@ -20,6 +21,9 @@ while getopts :r:sb:p: opt; do
       ;;
     p )
       post_script="$OPTARG"
+      ;;
+    n )
+      docker_cache="--no-cache"
       ;;
     \? )
       echo "invalid option, exiting" 2>&1
@@ -74,7 +78,7 @@ fi
 
 bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
-docker build --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
+docker build $docker_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
 
 if [ "$makesif" = "YES" ] ; then
   
@@ -90,7 +94,7 @@ if [ "$makesif" = "YES" ] ; then
   
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
-  docker build -t "$singularity_tag" .
+  docker build $docker_cache -t "$singularity_tag" .
   
   cd "$d"
   
