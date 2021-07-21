@@ -2,7 +2,7 @@
 
 set -e
 
-makesif=YES
+makesif=NO
 r_version=4.1.0
 bioc_version=NONE
 post_script=NONE
@@ -14,7 +14,7 @@ while getopts :r:snb:p: opt; do
       r_version="$OPTARG"
       ;;
     s )
-      makesif=NO
+      makesif=YES
       ;;
     b )
       bioc_version="$OPTARG"

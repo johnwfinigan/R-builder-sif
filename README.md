@@ -1,8 +1,14 @@
 # R-builder-sif
 
 This is a tool for automating builds of R and R packages into a container. Both Docker
-format and Singularity format are created. The tool is built to be usable on Linux and
+format and Singularity format can be created. The tool is built to be usable on Linux and
 under Docker Desktop on Mac.
+
+## News - read this if you used previous versions
+
+* You must pass ```-s``` to enable Singularity .sif file generation. It now defaults to disabled.
+
+* Default R version used, if you do not specify another, is now 4.1.0
 
 ## How To
 
@@ -30,7 +36,7 @@ and Singularity .sif format container will be written to the current directory.
 
 ```make-container.sh``` will try to guess the right Bioconductor version for you without you needing to specificy it manually, though.
 
-### Turn off singularity .sif generation: -s 
+### Turn on singularity .sif generation: -s 
 
 ```./make-container.sh -s my-container-name```
 
@@ -44,10 +50,10 @@ post.txt can contain any UNIX commands you need run during the container build. 
 
 ```
 apt update && apt -y install git libgdal-dev libnlopt-dev
-R --slave -e 'library("devtools"); devtools::install_github("PheWAS/PheWAS")'
-R --slave -e 'install.packages("rgdal", repos="https://cloud.r-project.org/")'
-R --slave -e 'library("rgdal")'
-R --slave -e 'library("PheWAS")'
+R --no-echo -e 'library("devtools"); devtools::install_github("PheWAS/PheWAS")'
+R --no-echo -e 'install.packages("rgdal", repos="https://cloud.r-project.org/")'
+R --no-echo -e 'library("rgdal")'
+R --no-echo -e 'library("PheWAS")'
 ```
 ### Turn off docker build cache: -n
 
