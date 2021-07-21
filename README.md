@@ -9,24 +9,61 @@ under Docker Desktop on Mac.
 * Create a text file called *packages-cran.txt* containing the names of the CRAN packages
 you want to include, one name per line
 
-* Experimental - optionally create a file called *packages-bioc.txt* with names of Bioconductor packages, as above
+* Optionally create a file called *packages-bioc.txt* with names of Bioconductor packages, as above
 
-* Pick a name for your container. We'll use my-container-name for this example
+* Pick a name for your container. We'll use *my-container-name* for this example:
 
-* ./make-container.sh my-container-name
+* ```./make-container.sh my-container-name```
 
 A docker image tagged with your container's name will be written to your local image storage, 
 and Singularity .sif format container will be written to the current directory.
+
+## Command Line Options
+
+### Manually specify R version:  -r 
+
+```./make-container.sh -r 4.0.4 my-container-name```
+
+### Manually specify Bioconductor version: -b
+
+```make-container.sh -r 4.1.0 -b 3.13 my-container-name```
+
+```make-container.sh``` will try to guess the right Bioconductor version for you without you needing to specificy it manually, though.
+
+### Turn off singularity .sif generation: -s 
+
+```./make-container.sh -s my-container-name```
+
+Passing -s causes only a Docker container to be built
+
+### Run arbitrary UNIX commands during the build: -p
+
+```./make-container.sh -p post.txt my-container-name```
+
+post.txt can contain any UNIX commands you need run during the container build. The contents of post.txt will be run after the CRAN and Bioconductor builds are run. This is useful for installing packages which require dependencies not in the standard build. Sample post.txt contents: 
+
+```
+apt update && apt -y install git libgdal-dev libnlopt-dev
+R --slave -e 'library("devtools"); devtools::install_github("PheWAS/PheWAS")'
+R --slave -e 'install.packages("rgdal", repos="https://cloud.r-project.org/")'
+R --slave -e 'library("rgdal")'
+R --slave -e 'library("PheWAS")'
+```
+### Turn off docker build cache: -n
+
+```./make-container.sh -n my-container-name```
+
+By default, Ubuntu packages from your base container will be updated at the end of the build, even if you do not pass ```-n```
+
 
 ## Conveniences
 
 * Docker build cache will speed up subsequent builds
 
-* The R package list is stored in / of the built container
+* The generated R package install script and build date is stored in / of the built container
 
 ## Known issues
 
-* Bioconductor support is experimental and barely tested
 
 * If using Bioconductor, packages-cran.txt must exist but may be empty
 
@@ -36,17 +73,7 @@ by default. You may need to raise your Docker Desktop RAM and CPU limits.
 * Multithreaded builds make the build log jumbled, making it hard to know which package's
 compilation failed.
 
-* Some CRAN packages will fail to compile unless you edit the Dockerfile to add in development
-packages / Linux dependencies that they need.
+* Some CRAN packages will fail to compile due to missing dependencies. This can usually be addressed by use of a post install script and the ```-p``` option.
 
-* Docker build caching means base images will not be automatically refreshed
+* Docker build caching means base images will not be automatically refreshed, but you can pass ```-n``` to ensure that they are.
 
-## ToDo
-
-* Better testing of Bioconductor support
-
-* Add option to turn off Singularity container generation
-
-* Add a way to change the R version without editing the Dockerfile, and make Bioconductor version match
-
-* Add a way to build with no cache
