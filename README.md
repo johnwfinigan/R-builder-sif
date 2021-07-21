@@ -2,11 +2,12 @@
 
 This is a tool for automating builds of R and R packages into a container. Both Docker
 format and Singularity format can be created. The tool is built to be usable on Linux and
-under Docker Desktop on Mac.
+under Docker Desktop on Mac. On Linux, your build machine must have Docker installed. 
+You do not need singularity installed on your build machine to use this tool to generate .sif files.
 
 ## News - read this if you used previous versions
 
-* You must pass ```-s``` to enable Singularity .sif file generation. It now defaults to disabled.
+* You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
 
 * Default R version used, if you do not specify another, is now 4.1.0
 
@@ -21,8 +22,8 @@ you want to include, one name per line
 
 * ```./make-container.sh my-container-name```
 
-A docker image tagged with your container's name will be written to your local image storage, 
-and Singularity .sif format container will be written to the current directory.
+A docker image tagged with your container's name will be written to your local image storage.
+If you passed the ```-s``` option (described below), a Singularity .sif format container will be written to the current directory.
 
 ## Command Line Options
 
@@ -40,13 +41,13 @@ and Singularity .sif format container will be written to the current directory.
 
 ```./make-container.sh -s my-container-name```
 
-Passing -s causes only a Docker container to be built
+If you do not pass ```-s```, only a Docker image is built.
 
-### Run arbitrary UNIX commands during the build: -p
+### Run arbitrary UNIX commands at the end of the build: -p
 
 ```./make-container.sh -p post.txt my-container-name```
 
-post.txt can contain any UNIX commands you need run during the container build. The contents of post.txt will be run after the CRAN and Bioconductor builds are run. This is useful for installing packages which require dependencies not in the standard build. Sample post.txt contents: 
+post.txt can contain any UNIX commands you need run at the end of the container build. The contents of post.txt will be run after the CRAN and Bioconductor builds are run. This is useful for installing packages which require dependencies not in the standard build. Sample post.txt contents: 
 
 ```
 apt update && apt -y install git libgdal-dev libnlopt-dev
