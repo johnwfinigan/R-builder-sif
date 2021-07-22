@@ -11,6 +11,7 @@ outfile="$1/tmp/R-packages.sh"
 :> "$outfile"
 bioc_version="$2"
 post_script="$3"
+threads=8
 
 cat packages-cran.txt > "$packagelist"
 # if we're going to be installing from Bioconductor,
@@ -28,7 +29,7 @@ done
 
 sed -e "s/, $//" "$t1" > "$t2"
 
-printf '), repos="https://cloud.r-project.org/", Ncpus=8)@\n' >> "$t2"
+printf '), repos="https://cloud.r-project.org/", Ncpus=%d)@\n' "$threads" >> "$t2"
 
 
 if [ -f packages-bioc.txt ] ; then
@@ -39,7 +40,7 @@ if [ -f packages-bioc.txt ] ; then
   done
 
   sed -e "s/, $//" "$t2" > "$t3"
-  printf '), Ncpus=8)@\n' >> "$t3"
+  printf '), Ncpus=%d)@\n' "$threads" >> "$t3"
 
   cat packages-bioc.txt >> "$packagelist"
   t="$t3"
