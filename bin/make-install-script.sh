@@ -19,7 +19,8 @@ if [ -f packages-bioc.txt ] ; then
   echo BiocManager >> "$packagelist"
 fi
 
-printf 'R --slave -e @install.packages(c(' > "$t1"
+printf 'set -e\n' > "$t1"
+printf 'R --slave -e @install.packages(c(' >> "$t1"
 
 grep -v '^#' "$packagelist" | while read -r p ; do 
   printf '"%s", ' "$p" >> "$t1"

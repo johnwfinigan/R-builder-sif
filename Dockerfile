@@ -28,7 +28,7 @@ RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/s
 
 COPY tmp/R-packages.sh /
 
-RUN chmod 700 /R-packages.sh && /R-packages.sh
+RUN bash /R-packages.sh
 
 RUN apt -y update && apt -y dist-upgrade
 
