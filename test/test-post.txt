@@ -1,0 +1,5 @@
+apt update && apt -y install git libgdal-dev libnlopt-dev
+R --no-echo -e 'library("devtools"); devtools::install_github("PheWAS/PheWAS")'
+R --no-echo -e 'install.packages("rgdal", repos="https://cloud.r-project.org/")'
+R --no-echo -e 'library("rgdal")'
+R --no-echo -e 'library("PheWAS")'
