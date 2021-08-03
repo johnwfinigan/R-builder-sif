@@ -8,6 +8,12 @@ bioc_version=NONE
 post_script=NONE
 docker_cache=" "
 
+for f in R-packages.sh custom-commands.sh ; do
+  if [ -f "tmp/${f}" ] ; then
+    rm "tmp/${f}" || exit 119
+  fi
+done
+
 while getopts :r:snb:p: opt; do
   case "$opt" in
     r )
