@@ -3,10 +3,17 @@
 set -e
 
 makesif=NO
-r_version=4.1.0
+r_version=4.1.1
 bioc_version=NONE
 post_script=NONE
 docker_cache=" "
+container_cmd=docker
+
+# allow use of alternate container tools
+# but, do not directly use unsanitized input
+if [ "$R_BUILDER_SIF_CONTAINER_CMD" = nerdctl ] ; then
+  container_cmd=nerdctl  # for Rancher Desktop
+fi
 
 for f in R-packages.sh custom-commands.sh ; do
   if [ -f "tmp/${f}" ] ; then
@@ -67,6 +74,7 @@ if [ -f packages-bioc.txt ] ; then
       *)
         echo "R major minor $r_major_minor" 1>&2
         echo "cannot guess bioconductor version, exiting" 1>&2
+        echo "try specifying bioconductor version with -b" 1>&2
         exit 115
         ;;
     esac
@@ -84,7 +92,7 @@ fi
 
 bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
-docker build $docker_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
+"$container_cmd" build $docker_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
 
 if [ "$makesif" = "YES" ] ; then
   
@@ -92,7 +100,7 @@ if [ "$makesif" = "YES" ] ; then
   savefile_name=$(basename "$savefile")
   savefile_dir=$(dirname "$savefile")
   
-  docker save "$container_name" > "$savefile"
+  "$container_cmd" save "$container_name" > "$savefile"
   
   d="$PWD"
   
@@ -100,11 +108,11 @@ if [ "$makesif" = "YES" ] ; then
   
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
-  docker build $docker_cache -t "$singularity_tag" .
+  "$container_cmd" build $docker_cache -t "$singularity_tag" .
   
   cd "$d"
   
-  docker run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://in/${savefile_name}"
+  "$container_cmd" run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://in/${savefile_name}"
   
   set +e
   rm "$savefile" 
