@@ -11,8 +11,14 @@ container_cmd=docker
 
 # allow use of alternate container tools
 # but, do not directly use unsanitized input
-if [ "$R_BUILDER_SIF_CONTAINER_CMD" = nerdctl ] ; then
-  container_cmd=nerdctl  # for Rancher Desktop
+if [ -n "$R_BUILDER_SIF_CONTAINER_CMD" ] ; then
+  if [ "$R_BUILDER_SIF_CONTAINER_CMD" = nerdctl ] ; then
+    container_cmd=nerdctl  # for Rancher Desktop
+  elif [ "$R_BUILDER_SIF_CONTAINER_CMD" != docker ] ; then
+    echo "R_BUILDER_SIF_CONTAINER_CMD set to unrecognized value, exiting." 2>&1
+    echo "try running:    unset R_BUILDER_SIF_CONTAINER_CMD" 2>&1
+    exit 120 
+  fi
 fi
 
 for f in R-packages.sh custom-commands.sh ; do
