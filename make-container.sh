@@ -6,7 +6,7 @@ makesif=NO
 r_version=4.1.1
 bioc_version=NONE
 post_script=NONE
-docker_cache=" "
+container_builder_cache=" "
 container_cmd=docker
 
 # allow use of alternate container tools
@@ -42,7 +42,7 @@ while getopts :r:snb:p: opt; do
       post_script="$OPTARG"
       ;;
     n )
-      docker_cache="--no-cache"
+      container_builder_cache="--no-cache"
       ;;
     \? )
       echo "invalid option, exiting" 2>&1
@@ -98,7 +98,7 @@ fi
 
 bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
-"$container_cmd" build $docker_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
+"$container_cmd" build $container_builder_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
 
 if [ "$makesif" = "YES" ] ; then
   
@@ -124,7 +124,7 @@ if [ "$makesif" = "YES" ] ; then
   
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
-  "$container_cmd" build $docker_cache -t "$singularity_tag" .
+  "$container_cmd" build $container_builder_cache -t "$singularity_tag" .
   
   cd "$d"
   
