@@ -15,8 +15,8 @@ if [ -n "$R_BUILDER_SIF_CONTAINER_CMD" ] ; then
   if [ "$R_BUILDER_SIF_CONTAINER_CMD" = nerdctl ] ; then
     container_cmd=nerdctl  # for Rancher Desktop
   elif [ "$R_BUILDER_SIF_CONTAINER_CMD" != docker ] ; then
-    echo "R_BUILDER_SIF_CONTAINER_CMD set to unrecognized value, exiting." 2>&1
-    echo "try running:    unset R_BUILDER_SIF_CONTAINER_CMD" 2>&1
+    echo "R_BUILDER_SIF_CONTAINER_CMD set to unrecognized value, exiting." >&2
+    echo "try running:    unset R_BUILDER_SIF_CONTAINER_CMD" >&2
     exit 120 
   fi
 fi
@@ -45,11 +45,11 @@ while getopts :r:snb:p: opt; do
       container_builder_cache="--no-cache"
       ;;
     \? )
-      echo "invalid option, exiting" 2>&1
+      echo "invalid option, exiting" >&2
       exit 113
       ;;
     : )
-      echo "-$OPTARG needs an argument, exiting" 1>&2
+      printf "\55%s needs an argument, exiting\n" "$OPTARG" >&2
       exit 114
       ;;
   esac
@@ -57,8 +57,8 @@ done
 
 shift $((OPTIND - 1))
 if [ -z "$1" ] ; then
-  echo "Error - you must provide a name for your container"
-  echo "example: $0 my-container"
+  echo "Error - you must provide a name for your container" >&2
+  echo "example: $0 my-container" >&2
   exit 111
 fi
 container_name="$1"
@@ -78,9 +78,9 @@ if [ -f packages-bioc.txt ] ; then
         bioc_version=3.13
         ;;
       *)
-        echo "R major minor $r_major_minor" 1>&2
-        echo "cannot guess bioconductor version, exiting" 1>&2
-        echo "try specifying bioconductor version with -b" 1>&2
+        echo "R major minor $r_major_minor" >&2
+        echo "cannot guess bioconductor version, exiting" >&2
+        echo "try specifying bioconductor version with -b" >&2
         exit 115
         ;;
     esac
@@ -90,9 +90,9 @@ fi
 set -u 
 
 if [ ! -f packages-cran.txt ] ; then
-  echo "Error - could not find packages-cran.txt"
-  echo "add your desired CRAN package names to packages-cran.txt, one package name per line"
-  echo "bioconductor packages must be added to packages-bioc.txt instead"
+  echo "Error - could not find packages-cran.txt" >&2
+  echo "add your desired CRAN package names to packages-cran.txt, one package name per line" >&2
+  echo "bioconductor packages must be added to packages-bioc.txt instead" >&2
   exit 112
 fi
 
@@ -102,7 +102,7 @@ bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
 if [ "$makesif" = "YES" ] ; then
   
-  if [ $(uname) = "Darwin" ] ; then
+  if [ "$(uname)" = "Darwin" ] ; then
     # mktemp on macos ignores TMPDIR and hardcodes the parent
     # directory of mktemp files. because nerdctl cannot read files at
     # this hardcoded location, we lose the ability to use mktemp.
@@ -134,4 +134,4 @@ if [ "$makesif" = "YES" ] ; then
   rm -v "$savefile" 
 fi
 
-printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script" 1>&2
+printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script"
