@@ -102,7 +102,18 @@ bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
 if [ "$makesif" = "YES" ] ; then
   
-  savefile=$(mktemp -p . -t savefile.XXXXXXXXXX)
+  if [ $(uname) = "Darwin" ] ; then
+    # mktemp on macos ignores TMPDIR and hardcodes the parent
+    # directory of mktemp files. because nerdctl cannot read files at
+    # this hardcoded location, we lose the ability to use mktemp.
+
+    rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
+    savefile="savefile.${rand}"
+    :> "$savefile"
+  else
+    savefile=$(mktemp -p . -t savefile.XXXXXXXXXX)
+  fi
+
   savefile_name=$(basename "$savefile")
   
   "$container_cmd" save "$container_name" > "$savefile"
@@ -117,7 +128,7 @@ if [ "$makesif" = "YES" ] ; then
   
   cd "$d"
   
-  "$container_cmd" run -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://out/${savefile_name}"
+  "$container_cmd" run -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive:///out/${savefile_name}"
   
   set +e
   rm -v "$savefile" 
