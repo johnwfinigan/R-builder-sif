@@ -5,3 +5,5 @@ packages-bioc.txt
 packages-cran.txt
 R-packages.sh
 .bash_history
+savefile*
+tmp/*

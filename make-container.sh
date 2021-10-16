@@ -102,9 +102,8 @@ bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
 if [ "$makesif" = "YES" ] ; then
   
-  savefile=$(mktemp)
+  savefile=$(mktemp -p . -t savefile.XXXXXXXXXX)
   savefile_name=$(basename "$savefile")
-  savefile_dir=$(dirname "$savefile")
   
   "$container_cmd" save "$container_name" > "$savefile"
   
@@ -118,10 +117,10 @@ if [ "$makesif" = "YES" ] ; then
   
   cd "$d"
   
-  "$container_cmd" run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://in/${savefile_name}"
+  "$container_cmd" run -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://out/${savefile_name}"
   
   set +e
-  rm "$savefile" 
+  rm -v "$savefile" 
 fi
 
 printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script" 1>&2
