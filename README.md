@@ -2,14 +2,26 @@
 
 This is a tool for automating builds of R and R packages into a container. Both Docker
 format and Singularity format can be created. The tool is built to be usable on Linux and
-under Docker Desktop on Mac. On Linux, your build machine must have Docker installed. 
+under Docker Desktop on Mac. There is now experimental support for Rancher Desktop on Mac.
+
+On Linux, your build machine must have Docker installed. 
 You do not need singularity installed on your build machine to use this tool to generate .sif files.
 
 ## News - read this if you used previous versions
 
 * You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
 
-* Default R version used, if you do not specify another, is now 4.1.0
+* Default R version used, if you do not specify another, is now 4.1.1
+
+* Custom commands are now broken into a separate container layer, enhancing build caching.
+
+* Experimental support for Rancher Desktop, tested on Mac! To use Rancher Desktop and nerdctl,
+
+```
+export R_BUILDER_SIF_CONTAINER_CMD=nerdctl
+```
+
+before running make-container.sh
 
 ## How To
 
