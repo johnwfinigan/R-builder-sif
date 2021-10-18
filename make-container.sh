@@ -3,10 +3,29 @@
 set -e
 
 makesif=NO
-r_version=4.1.0
+r_version=4.1.1
 bioc_version=NONE
 post_script=NONE
-docker_cache=" "
+container_builder_cache=" "
+container_cmd=docker
+
+# allow use of alternate container tools
+# but, do not directly use unsanitized input
+if [ -n "$R_BUILDER_SIF_CONTAINER_CMD" ] ; then
+  if [ "$R_BUILDER_SIF_CONTAINER_CMD" = nerdctl ] ; then
+    container_cmd=nerdctl  # for Rancher Desktop
+  elif [ "$R_BUILDER_SIF_CONTAINER_CMD" != docker ] ; then
+    echo "R_BUILDER_SIF_CONTAINER_CMD set to unrecognized value, exiting." >&2
+    echo "try running:    unset R_BUILDER_SIF_CONTAINER_CMD" >&2
+    exit 120 
+  fi
+fi
+
+for f in R-packages.sh custom-commands.sh ; do
+  if [ -f "tmp/${f}" ] ; then
+    rm "tmp/${f}" || exit 119
+  fi
+done
 
 while getopts :r:snb:p: opt; do
   case "$opt" in
@@ -23,14 +42,14 @@ while getopts :r:snb:p: opt; do
       post_script="$OPTARG"
       ;;
     n )
-      docker_cache="--no-cache"
+      container_builder_cache="--no-cache"
       ;;
     \? )
-      echo "invalid option, exiting" 2>&1
+      echo "invalid option, exiting" >&2
       exit 113
       ;;
     : )
-      echo "-$OPTARG needs an argument, exiting" 1>&2
+      printf "\55%s needs an argument, exiting\n" "$OPTARG" >&2
       exit 114
       ;;
   esac
@@ -38,8 +57,8 @@ done
 
 shift $((OPTIND - 1))
 if [ -z "$1" ] ; then
-  echo "Error - you must provide a name for your container"
-  echo "example: $0 my-container"
+  echo "Error - you must provide a name for your container" >&2
+  echo "example: $0 my-container" >&2
   exit 111
 fi
 container_name="$1"
@@ -59,8 +78,9 @@ if [ -f packages-bioc.txt ] ; then
         bioc_version=3.13
         ;;
       *)
-        echo "R major minor $r_major_minor" 1>&2
-        echo "cannot guess bioconductor version, exiting" 1>&2
+        echo "R major minor $r_major_minor" >&2
+        echo "cannot guess bioconductor version, exiting" >&2
+        echo "try specifying bioconductor version with -b" >&2
         exit 115
         ;;
     esac
@@ -70,23 +90,33 @@ fi
 set -u 
 
 if [ ! -f packages-cran.txt ] ; then
-  echo "Error - could not find packages-cran.txt"
-  echo "add your desired CRAN package names to packages-cran.txt, one package name per line"
-  echo "bioconductor packages must be added to packages-bioc.txt instead"
+  echo "Error - could not find packages-cran.txt" >&2
+  echo "add your desired CRAN package names to packages-cran.txt, one package name per line" >&2
+  echo "bioconductor packages must be added to packages-bioc.txt instead" >&2
   exit 112
 fi
 
 bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
-docker build $docker_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
+"$container_cmd" build $container_builder_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
 
 if [ "$makesif" = "YES" ] ; then
   
-  savefile=$(mktemp)
+  if [ "$(uname)" = "Darwin" ] ; then
+    # mktemp on macos ignores TMPDIR and hardcodes the parent
+    # directory of mktemp files. because nerdctl cannot read files at
+    # this hardcoded location, we lose the ability to use mktemp.
+
+    rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
+    savefile="savefile.${rand}"
+    :> "$savefile"
+  else
+    savefile=$(mktemp -p . -t savefile.XXXXXXXXXX)
+  fi
+
   savefile_name=$(basename "$savefile")
-  savefile_dir=$(dirname "$savefile")
   
-  docker save "$container_name" > "$savefile"
+  "$container_cmd" save "$container_name" > "$savefile"
   
   d="$PWD"
   
@@ -94,14 +124,14 @@ if [ "$makesif" = "YES" ] ; then
   
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
-  docker build $docker_cache -t "$singularity_tag" .
+  "$container_cmd" build $container_builder_cache -t "$singularity_tag" .
   
   cd "$d"
   
-  docker run -v "$savefile_dir:/in" -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive://in/${savefile_name}"
+  "$container_cmd" run -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive:///out/${savefile_name}"
   
   set +e
-  rm "$savefile" 
+  rm -v "$savefile" 
 fi
 
-printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script" 1>&2
+printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script"

@@ -8,7 +8,9 @@ t2=$(mktemp)
 t3=$(mktemp)
 t="$t2"
 outfile="$1/tmp/R-packages.sh"
+custom="$1/tmp/custom-commands.sh"
 :> "$outfile"
+:> "$custom"
 bioc_version="$2"
 post_script="$3"
 threads=8
@@ -58,7 +60,7 @@ if [ "$post_script" != "NONE" ] ; then
     echo "Custom install commands script file specified, but file cannot be found, exiting" 1>&2
     exit 117
   fi
-  cat "$post_script" >> "$outfile"
+  cat "$post_script" > "$custom"
 fi
 
 rm "$t1" "$t2" "$t3" "$packagelist"

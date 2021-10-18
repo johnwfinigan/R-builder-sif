@@ -10,7 +10,7 @@ deb-src http://archive.ubuntu.com/ubuntu/ focal-updates universe\n' >> /etc/apt/
 
 RUN apt -y update && apt -y dist-upgrade
 
-RUN apt -y update && apt -y install curl locales locales-all bash tar gzip libxml2-dev zlib1g-dev libssl-dev
+RUN apt -y update && apt -y install curl locales locales-all bash tar gzip libxml2-dev zlib1g-dev libssl-dev wget
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
 	&& locale-gen en_US.utf8 \
@@ -27,8 +27,10 @@ RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/s
   tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/R-packages.sh /
-
 RUN bash /R-packages.sh
+
+COPY tmp/custom-commands.sh /
+RUN bash /custom-commands.sh
 
 RUN apt -y update && apt -y dist-upgrade
 
