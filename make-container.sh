@@ -3,7 +3,7 @@
 set -e
 
 makesif=NO
-r_version=4.1.1
+r_version=4.1.2
 bioc_version=NONE
 post_script=NONE
 container_builder_cache=" "
@@ -21,7 +21,7 @@ if [ -n "$R_BUILDER_SIF_CONTAINER_CMD" ] ; then
   fi
 fi
 
-for f in R-packages.sh custom-commands.sh ; do
+for f in R-packages-cran.sh R-packages-bioc.sh R-packages.sh custom-commands.sh ; do
   if [ -f "tmp/${f}" ] ; then
     rm "tmp/${f}" || exit 119
   fi

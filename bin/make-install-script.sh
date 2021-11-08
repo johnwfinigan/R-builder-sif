@@ -2,58 +2,50 @@
 
 set -eu
 
-packagelist=$(mktemp)
 t1=$(mktemp)
 t2=$(mktemp)
 t3=$(mktemp)
-t="$t2"
-outfile="$1/tmp/R-packages.sh"
+t4=$(mktemp)
+outfile_cran="$1/tmp/R-packages-cran.sh"
+outfile_bioc="$1/tmp/R-packages-bioc.sh"
 custom="$1/tmp/custom-commands.sh"
-:> "$outfile"
+:> "$outfile_cran"
+:> "$outfile_bioc"
 :> "$custom"
 bioc_version="$2"
 post_script="$3"
 threads=8
 
-cat packages-cran.txt > "$packagelist"
-# if we're going to be installing from Bioconductor,
-# add BiocManager to install list
-if [ -f packages-bioc.txt ] ; then
-  echo BiocManager >> "$packagelist"
-fi
-
 printf 'set -e\n' > "$t1"
 printf 'R --slave -e @install.packages(c(' >> "$t1"
-
-grep -v '^#' "$packagelist" | while read -r p ; do 
+grep -v '^#' packages-cran.txt | while read -r p ; do 
   printf '"%s", ' "$p" >> "$t1"
 done
-
 sed -e "s/, $//" "$t1" > "$t2"
-
 printf '), repos="https://cloud.r-project.org/", Ncpus=%d)@\n' "$threads" >> "$t2"
 
+grep -v '^#' packages-cran.txt | while read -r p ; do
+  printf 'R --slave -e @library("%s")@\n' "$p" >> "$t2"
+done
+sed -e "s/@/\'/g" "$t2" > "$outfile_cran"
 
 if [ -f packages-bioc.txt ] ; then
-  printf 'R --slave -e @BiocManager::install(version = "%s", ask = FALSE, force = TRUE)@\n' "$bioc_version" >> "$t2"
-  printf 'R --slave -e @BiocManager::install(c(' >> "$t2"
+  printf 'R --slave -e @install.packages("BiocManager", repos="https://cloud.r-project.org/")@\n' > "$t3"
+  printf 'R --slave -e @BiocManager::install(version = "%s", ask = FALSE, force = TRUE)@\n' "$bioc_version" >> "$t3"
+  printf 'R --slave -e @BiocManager::install(c(' >> "$t3"
   grep -v '^#' packages-bioc.txt | while read -r p ; do
-    printf '"%s", ' "$p" >> "$t2"
+    printf '"%s", ' "$p" >> "$t3"
   done
+  sed -e "s/, $//" "$t3" > "$t4"
+  printf '), Ncpus=%d)@\n' "$threads" >> "$t4"
 
-  sed -e "s/, $//" "$t2" > "$t3"
-  printf '), Ncpus=%d)@\n' "$threads" >> "$t3"
+  printf 'R --slave -e @library("BiocManager")@\n' >> "$t4"
+  grep -v '^#' packages-bioc.txt | while read -r p ; do
+    printf 'R --slave -e @library("%s")@\n' "$p" >> "$t4"
+  done
+  sed -e "s/@/\'/g" "$t4" > "$outfile_bioc"
 
-  cat packages-bioc.txt >> "$packagelist"
-  t="$t3"
 fi
-
-
-grep -v '^#' "$packagelist" | while read -r p ; do
-  printf 'R --slave -e @library("%s")@\n' "$p" >> "$t"
-done
-
-sed -e "s/@/\'/g" "$t" > "$outfile"
 
 if [ "$post_script" != "NONE" ] ; then
   if [ ! -f "$post_script" ] ; then
@@ -63,4 +55,4 @@ if [ "$post_script" != "NONE" ] ; then
   cat "$post_script" > "$custom"
 fi
 
-rm "$t1" "$t2" "$t3" "$packagelist"
+rm "$t1" "$t2" "$t3" "$t4"
