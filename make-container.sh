@@ -102,36 +102,25 @@ bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
 
 if [ "$makesif" = "YES" ] ; then
   
-  if [ "$(uname)" = "Darwin" ] ; then
-    # mktemp on macos ignores TMPDIR and hardcodes the parent
-    # directory of mktemp files. because nerdctl cannot read files at
-    # this hardcoded location, we lose the ability to use mktemp.
+  rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
+  savevol="r-builder-sif-temporary-${rand}"
+  "$container_cmd" volume create "$savevol"
+  "$container_cmd" save "$container_name" | "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'of=/out/savefile' 'bs=1M'
 
-    rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
-    savefile="savefile.${rand}"
-    :> "$savefile"
-  else
-    savefile=$(mktemp -p . -t savefile.XXXXXXXXXX)
-  fi
-
-  savefile_name=$(basename "$savefile")
-  
-  "$container_cmd" save "$container_name" > "$savefile"
-  
   d="$PWD"
-  
   cd singularity
-  
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   singularity_tag="rbuilder-sif-singularity-${rand}" 
   "$container_cmd" build $container_builder_cache -t "$singularity_tag" .
-  
   cd "$d"
-  
-  "$container_cmd" run -v "$PWD:/out" -it "$singularity_tag" bash -c "singularity build /out/${container_name}.sif docker-archive:///out/${savefile_name}"
-  
-  set +e
-  rm -v "$savefile" 
+
+  "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile"
+  echo singularity container id above
+  # docker cp could also work here, but cannot use it for the copy-in
+  # due to stdin source. so, potentially not worth dealing with need
+  # for a running container to connect to and then needing to clean it up
+  "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'if=/out/savefile.sif' 'bs=1M' > "${container_name}.sif"
+  "$container_cmd" volume rm "$savevol"
 fi
 
 printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script"
