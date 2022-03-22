@@ -3,7 +3,9 @@
 packages.txt
 packages-bioc.txt
 packages-cran.txt
+post.txt
 R-packages.sh
 .bash_history
 savefile*
 tmp/*
+test.log
