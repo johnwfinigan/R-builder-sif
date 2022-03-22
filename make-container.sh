@@ -3,7 +3,7 @@
 set -e
 
 makesif=NO
-r_version=4.1.2
+r_version=4.1.3
 bioc_version=NONE
 post_script=NONE
 container_builder_cache=" "
