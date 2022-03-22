@@ -157,6 +157,7 @@ if [ "$makesif" = "YES" ] ; then
   sif_name=$(echo "$container_name" | tr ':' '_' )
   "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'if=/out/savefile.sif' 'bs=1M' > "${sif_name}.sif"
   "$container_cmd" volume rm "$savevol"
+  echo Built "${sif_name}.sif from image $tagged_name"
 fi
 
 if [ "$convert_only" = "NO" ] ; then
