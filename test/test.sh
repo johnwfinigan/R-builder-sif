@@ -11,8 +11,7 @@ echo "$(date) starting tests" > test.log
 # basic case, just cran, just defaults
 echo data.table > packages-cran.txt
 getname
-#./make-container.sh -n "$randname"
-./make-container.sh "$randname"
+./make-container.sh -n "$randname"
 echo "$(date) Basic case pass" | tee -a test.log
 
 # bioconductor with defaults

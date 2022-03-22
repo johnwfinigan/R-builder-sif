@@ -78,17 +78,17 @@ fi
 
 set -u
 
+case "$container_name" in
+  *:* )
+    tagged_name="$container_name"
+    ;;
+  * )
+    tagged_name="${container_name}:latest"
+    ;;
+esac
+  
 if [ "$convert_only" = "YES" ] ; then
-  inspect_name="$container_name"
-  case "$container_name" in
-    *:* )
-      ;;
-    * )
-      inspect_name="${container_name}:latest"
-      ;;
-  esac
-
-  if ! "$container_cmd" image inspect "$inspect_name" > /dev/null ; then
+  if ! "$container_cmd" image inspect "$tagged_name" > /dev/null ; then
     echo "Error - the image and tag you specify must already exist in your local container image storage" >&2
     echo "if it does not, you must pull it or build it before calling this script" >&2
     exit 116
@@ -138,7 +138,7 @@ if [ "$makesif" = "YES" ] ; then
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   savevol="r-builder-sif-temporary-${rand}"
   "$container_cmd" volume create "$savevol"
-  "$container_cmd" save "$container_name" | "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'of=/out/savefile' 'bs=1M'
+  "$container_cmd" save "$tagged_name" | "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'of=/out/savefile' 'bs=1M'
 
   d="$PWD"
   cd singularity
