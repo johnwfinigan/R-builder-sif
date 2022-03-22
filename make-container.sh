@@ -76,6 +76,8 @@ if [ -z "$1" ] ; then
   exit 111
 fi
 
+set -u
+
 if [ "$convert_only" = "YES" ] ; then
   inspect_name="$container_name"
   case "$container_name" in
@@ -119,8 +121,6 @@ if [ "$convert_only" = "NO" ] ; then
     fi
   fi
   
-  set -u 
-  
   if [ ! -f packages-cran.txt ] ; then
     echo "Error - could not find packages-cran.txt" >&2
     echo "add your desired CRAN package names to packages-cran.txt, one package name per line" >&2
@@ -148,7 +148,6 @@ if [ "$makesif" = "YES" ] ; then
   cd "$d"
 
   "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile"
-  echo singularity container id above
 
   # docker cp could also work here, but cannot use it for the copy-in
   # due to stdin source. so, potentially not worth dealing with need
