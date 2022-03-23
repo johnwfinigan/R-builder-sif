@@ -43,8 +43,10 @@ if [ ! -f "${randname}.sif" ] ; then
 fi
 echo "$(date) custom R case pass, sif pass" | tee -a test.log
 
+# prepare for convert-only tests
 "$R_BUILDER_SIF_CONTAINER_CMD" pull ubuntu:18.04
 "$R_BUILDER_SIF_CONTAINER_CMD" pull ubuntu:latest
+rm -f packages-bioc.txt packages-cran.txt post.txt
 
 # test convert without tag
 getname
