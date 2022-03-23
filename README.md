@@ -11,9 +11,9 @@ You do not need singularity installed on your build machine to use this tool to 
 
 * You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
 
-* Default R version used, if you do not specify another, is now 4.1.1
+* Default R version used, if you do not specify another, is now 4.1.3
 
-* Custom commands are now broken into a separate container layer, enhancing build caching.
+* Custom commands and bioconductor packages are now broken into separate container layers, enhancing build caching.
 
 * Experimental support for Rancher Desktop, tested on Mac! To use Rancher Desktop and nerdctl,
 
@@ -23,7 +23,9 @@ export R_BUILDER_SIF_CONTAINER_CMD=nerdctl
 
 before running make-container.sh
 
-## How To
+* convert-only mode: convert any pre-existing Docker format container to Singularity format, independent of R build functionality
+
+## How To - Build R container
 
 * Create a text file called *packages-cran.txt* containing the names of the CRAN packages
 you want to include, one name per line
@@ -36,6 +38,18 @@ you want to include, one name per line
 
 A docker image tagged with your container's name will be written to your local image storage.
 If you passed the ```-s``` option (described below), a Singularity .sif format container will be written to the current directory.
+
+## How To - Convert an Existing Container from Docker to Singularity format
+
+The container you want to convert must already be in your local registry. 
+You must either build it from a Dockerfile or pull it from a remote registry, before converting.
+Once it's in your local registry, run:
+
+```
+./make-container.sh -c container_name:tag
+```
+
+If you omit the tag, "latest" is implicitly used.
 
 ## Command Line Options
 
@@ -74,6 +88,9 @@ R --no-echo -e 'library("PheWAS")'
 
 By default, Ubuntu packages from your base container will be updated at the end of the build, even if you do not pass ```-n```
 
+### Convert-only mode: -c 
+
+See How-To above.
 
 ## Conveniences
 
