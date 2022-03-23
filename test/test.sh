@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#export R_BUILDER_SIF_CONTAINER_CMD=nerdctl
+export R_BUILDER_SIF_CONTAINER_CMD=docker
+
 set -eu
 getname() {
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
@@ -40,8 +43,10 @@ if [ ! -f "${randname}.sif" ] ; then
 fi
 echo "$(date) custom R case pass, sif pass" | tee -a test.log
 
+"$R_BUILDER_SIF_CONTAINER_CMD" pull ubuntu:18.04
+"$R_BUILDER_SIF_CONTAINER_CMD" pull ubuntu:latest
+
 # test convert without tag
-docker pull ubuntu:latest
 getname
 ./make-container.sh -c ubuntu
 if [ ! -f ubuntu.sif ] ; then
@@ -53,8 +58,8 @@ echo "$(date) untagged convert pass" | tee -a test.log
 # test convert with tag
 # centos:7 will have already been pulled by sif generation step
 getname
-./make-container.sh -c centos:7
-if [ ! -f centos_7.sif ] ; then
+./make-container.sh -c ubuntu:18.04
+if [ ! -f ubuntu_18.04.sif ] ; then
   echo "convert only test failed" >&2
   exit 151
 fi

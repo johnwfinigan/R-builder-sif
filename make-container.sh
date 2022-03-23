@@ -78,6 +78,8 @@ fi
 
 set -u
 
+echo "Building with $container_cmd"
+
 case "$container_name" in
   *:* )
     tagged_name="$container_name"
@@ -86,7 +88,7 @@ case "$container_name" in
     tagged_name="${container_name}:latest"
     ;;
 esac
-  
+
 if [ "$convert_only" = "YES" ] ; then
   if ! "$container_cmd" image inspect "$tagged_name" > /dev/null ; then
     echo "Error - the image and tag you specify must already exist in your local container image storage" >&2
