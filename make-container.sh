@@ -3,7 +3,7 @@
 set -e
 
 makesif=NO
-r_version=4.1.3
+r_version=4.2.1
 bioc_version=NONE
 post_script=NONE
 container_builder_cache=" "
@@ -112,6 +112,9 @@ if [ "$convert_only" = "NO" ] ; then
           ;;
         4.1)
           bioc_version=3.13
+          ;;
+        4.2)
+          bioc_version=3.15
           ;;
         *)
           echo "R major minor $r_major_minor" >&2
