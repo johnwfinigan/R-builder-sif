@@ -11,7 +11,7 @@ You do not need singularity installed on your build machine to use this tool to 
 
 * You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
 
-* Default R version used, if you do not specify another, is now 4.1.3
+* Default R version used, if you do not specify another, is now 4.2.1
 
 * Custom commands and bioconductor packages are now broken into separate container layers, enhancing build caching.
 
