@@ -159,7 +159,7 @@ if [ "$makesif" = "YES" ] ; then
   # for a running container to connect to and then needing to clean it up
 
   # remove colons from sif file name, so that the file can be stored on Windows
-  sif_name=$(echo "$container_name" | tr ':' '_' )
+  sif_name=$(echo "$container_name" | tr ':/' '_' )
   "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'if=/out/savefile.sif' 'bs=1M' > "${sif_name}.sif"
   "$container_cmd" volume rm "$savevol"
   echo Built "${sif_name}.sif from image $tagged_name"
