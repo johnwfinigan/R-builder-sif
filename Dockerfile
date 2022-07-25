@@ -27,16 +27,16 @@ RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/s
   tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/custom-pre-commands.sh /
-RUN bash /custom-pre-commands.sh
+RUN bash -e /custom-pre-commands.sh
 
 COPY tmp/R-packages-cran.sh /
-RUN bash /R-packages-cran.sh
+RUN bash -e /R-packages-cran.sh
 
 COPY tmp/R-packages-bioc.sh /
-RUN bash /R-packages-bioc.sh
+RUN bash -e /R-packages-bioc.sh
 
 COPY tmp/custom-commands.sh /
-RUN bash /custom-commands.sh
+RUN bash -e /custom-commands.sh
 
 RUN apt -y update && apt -y dist-upgrade
 
