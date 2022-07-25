@@ -6,6 +6,7 @@ makesif=NO
 r_version=4.2.1
 bioc_version=NONE
 post_script=NONE
+pre_script=NONE
 container_builder_cache=" "
 container_cmd=docker
 convert_only=NO
@@ -28,7 +29,7 @@ for f in R-packages-cran.sh R-packages-bioc.sh R-packages.sh custom-commands.sh 
   fi
 done
 
-while getopts :r:scnb:p: opt; do
+while getopts :r:scnb:p:e: opt; do
   case "$opt" in
     r )
       r_version="$OPTARG"
@@ -45,6 +46,9 @@ while getopts :r:scnb:p: opt; do
       ;;
     p )
       post_script="$OPTARG"
+      ;;
+    e )
+      pre_script="$OPTARG"
       ;;
     n )
       container_builder_cache="--no-cache"
@@ -133,7 +137,7 @@ if [ "$convert_only" = "NO" ] ; then
     exit 112
   fi
   
-  bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script"
+  bin/make-install-script.sh "$PWD" "$bioc_version" "$post_script" "$pre_script"
   
   "$container_cmd" build $container_builder_cache --build-arg rversion="$r_version" --build-arg rmajor="$r_major" -t "$container_name" .
 fi
@@ -166,5 +170,5 @@ if [ "$makesif" = "YES" ] ; then
 fi
 
 if [ "$convert_only" = "NO" ] ; then
-  printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script"
+  printf "R version: %s\nR major: %s\nR major minor: %s\nBioconductor version: %s\nMake .sif file: %s\nCustom post install commands from: %s\nCustom pre install commands from: %s\n" "$r_version" "$r_major" "$r_major_minor" "$bioc_version" "$makesif" "$post_script" "$pre_script"
 fi

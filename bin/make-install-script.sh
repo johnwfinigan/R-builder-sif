@@ -9,11 +9,14 @@ t4=$(mktemp)
 outfile_cran="$1/tmp/R-packages-cran.sh"
 outfile_bioc="$1/tmp/R-packages-bioc.sh"
 custom="$1/tmp/custom-commands.sh"
+custom_pre="$1/tmp/custom-pre-commands.sh"
 :> "$outfile_cran"
 :> "$outfile_bioc"
 :> "$custom"
+:> "$custom_pre"
 bioc_version="$2"
 post_script="$3"
+pre_script="$4"
 threads=8
 
 printf 'set -e\n' > "$t1"
@@ -49,10 +52,18 @@ fi
 
 if [ "$post_script" != "NONE" ] ; then
   if [ ! -f "$post_script" ] ; then
-    echo "Custom install commands script file specified, but file cannot be found, exiting" 1>&2
+    echo "Custom post install commands script file specified, but file cannot be found, exiting" 1>&2
     exit 117
   fi
   cat "$post_script" > "$custom"
+fi
+
+if [ "$pre_script" != "NONE" ] ; then
+  if [ ! -f "$pre_script" ] ; then
+    echo "Custom pre install commands script file specified, but file cannot be found, exiting" 1>&2
+    exit 118
+  fi
+  cat "$pre_script" > "$custom_pre"
 fi
 
 rm "$t1" "$t2" "$t3" "$t4"

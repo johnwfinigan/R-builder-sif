@@ -26,6 +26,9 @@ ARG rversion
 RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
   tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
 
+COPY tmp/custom-pre-commands.sh /
+RUN bash /custom-pre-commands.sh
+
 COPY tmp/R-packages-cran.sh /
 RUN bash /R-packages-cran.sh
 
