@@ -111,16 +111,16 @@ if [ "$convert_only" = "NO" ] ; then
     if [ "$bioc_version" = "NONE" ] ; then
       case "$r_major_minor" in
         3.6)
-          bioc_version=3.9
+          bioc_version=3.10
           ;;
         4.0)
-          bioc_version=3.11
+          bioc_version=3.12
           ;;
         4.1)
-          bioc_version=3.13
+          bioc_version=3.14
           ;;
         4.2)
-          bioc_version=3.15
+          bioc_version=3.16
           ;;
         *)
           echo "R major minor $r_major_minor" >&2
