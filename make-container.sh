@@ -149,7 +149,7 @@ if [ "$makesif" = "YES" ] ; then
   rand=$(dd if=/dev/urandom count=1 bs=512 2>/dev/null | openssl sha1 | awk '{print $NF}')
   savevol="r-builder-sif-temporary-${rand}"
   "$container_cmd" volume create "$savevol"
-  "$container_cmd" save "$tagged_name" | "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'of=/out/savefile' 'bs=1M'
+  "$container_cmd" save "$tagged_name" | "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd rockylinux:9 'of=/out/savefile' 'bs=1M'
 
   d="$PWD"
   cd singularity
@@ -166,7 +166,7 @@ if [ "$makesif" = "YES" ] ; then
 
   # remove colons from sif file name, so that the file can be stored on Windows
   sif_name=$(echo "$container_name" | tr ':/' '_' )
-  "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd centos:7 'if=/out/savefile.sif' 'bs=1M' > "${sif_name}.sif"
+  "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd rockylinux:9 'if=/out/savefile.sif' 'bs=1M' > "${sif_name}.sif"
   "$container_cmd" volume rm "$savevol"
   echo Built "${sif_name}.sif from image $tagged_name"
 fi
