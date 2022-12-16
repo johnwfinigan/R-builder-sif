@@ -3,7 +3,7 @@
 set -e
 
 makesif=NO
-r_version=4.2.1
+r_version=4.2.2
 bioc_version=NONE
 post_script=NONE
 pre_script=NONE

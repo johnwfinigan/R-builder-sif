@@ -23,7 +23,7 @@ RUN apt -y update && apt -y build-dep r-base-core
 
 ARG rmajor
 ARG rversion
-RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cran.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
+RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cloud.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
   tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/custom-pre-commands.sh /
