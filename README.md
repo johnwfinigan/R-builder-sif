@@ -9,9 +9,19 @@ You do not need singularity installed on your build machine to use this tool to 
 
 ## News - read this if you used previous versions
 
+* Bug fix: scripts are now all run with bash -e to ensure that they fail on first error
+
+* Bug fix: auto-guessed Bioconductor version now defaults to the latest release for the corresponding R version. This was done to address known compilation failures. It remains possible to specify your Bioconductor version explicitly.
+
+* Added ability to specify a pre script using ```-e```. This is like the post script, but runs before CRAN and bioconductor package installs run. Useful for installing special build dependencies. 
+
+* convert-only mode: convert any pre-existing Docker format container to Singularity format, independent of R build functionality
+
+* Singularity container export now done using Apptainer
+
 * You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
 
-* Default R version used, if you do not specify another, is now 4.2.1
+* Default R version used, if you do not specify another, is now 4.2.2
 
 * Custom commands and bioconductor packages are now broken into separate container layers, enhancing build caching.
 
@@ -23,7 +33,7 @@ export R_BUILDER_SIF_CONTAINER_CMD=nerdctl
 
 before running make-container.sh
 
-* convert-only mode: convert any pre-existing Docker format container to Singularity format, independent of R build functionality
+* Experimental support for podman on Linux: ```export R_BUILDER_SIF_CONTAINER_CMD=podman```
 
 ## How To - Build R container
 
