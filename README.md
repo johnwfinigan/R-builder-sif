@@ -86,15 +86,16 @@ R --no-echo -e 'install.packages("rgdal", repos="https://cloud.r-project.org/")'
 R --no-echo -e 'library("rgdal")'
 R --no-echo -e 'library("PheWAS")'
 ```
+
+### Run arbitrary UNIX commands at the beginning of the build: -e
+
+Same as ```-p``` but runs before R library builds. Useful for installing special dependencies.
+
 ### Turn off docker build cache: -n
 
 ```./make-container.sh -n my-container-name```
 
 By default, Ubuntu packages from your base container will be updated at the end of the build, even if you do not pass ```-n```
-
-### Run arbitrary UNIX commands at the beginning of the build: -e
-
-Same as ```-p``` but runs before R library builds. Useful for installing special dependencies.
 
 ### Convert-only mode: -c 
 
