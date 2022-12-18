@@ -2,9 +2,9 @@
 
 This is a tool for automating builds of R and R packages into a container. Both Docker
 format and Singularity format can be created. The tool is built to be usable on Linux and
-under Docker Desktop on Mac. There is now experimental support for Rancher Desktop on Mac.
+under Docker Desktop on Mac. There is now experimental support for Rancher Desktop on Mac and Podman on Linux.
 
-On Linux, your build machine must have Docker installed. 
+On Linux, your build machine must have Docker or Podman installed. 
 You do not need singularity installed on your build machine to use this tool to generate .sif files.
 
 ## News - read this if you used previous versions
@@ -25,13 +25,7 @@ You do not need singularity installed on your build machine to use this tool to 
 
 * Custom commands and bioconductor packages are now broken into separate container layers, enhancing build caching.
 
-* Experimental support for Rancher Desktop, tested on Mac! To use Rancher Desktop and nerdctl,
-
-```
-export R_BUILDER_SIF_CONTAINER_CMD=nerdctl
-```
-
-before running make-container.sh
+* Experimental support for Rancher Desktop, tested on Mac! To use Rancher Desktop and nerdctl, ```export R_BUILDER_SIF_CONTAINER_CMD=nerdctl``` before running make-container.sh
 
 * Experimental support for podman on Linux: ```export R_BUILDER_SIF_CONTAINER_CMD=podman```
 
@@ -98,6 +92,10 @@ R --no-echo -e 'library("PheWAS")'
 
 By default, Ubuntu packages from your base container will be updated at the end of the build, even if you do not pass ```-n```
 
+### Run arbitrary UNIX commands at the beginning of the build: -e
+
+Same as ```-p``` but runs before R library builds. Useful for installing special dependencies.
+
 ### Convert-only mode: -c 
 
 See How-To above.
@@ -119,7 +117,7 @@ by default. You may need to raise your Docker Desktop RAM and CPU limits.
 * Multithreaded builds make the build log jumbled, making it hard to know which package's
 compilation failed.
 
-* Some CRAN packages will fail to compile due to missing dependencies. This can usually be addressed by use of a post install script and the ```-p``` option.
+* Some CRAN packages will fail to compile due to missing dependencies. This can usually be addressed by use of a pre install script and the ```-e``` option.
 
-* Docker build caching means base images will not be automatically refreshed, but you can pass ```-n``` to ensure that they are.
+* Docker build caching means base images will not be automatically refreshed, but you can pass ```-n``` to ensure that they are. 
 
