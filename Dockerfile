@@ -1,12 +1,10 @@
-FROM ubuntu:20.04
+FROM debian:12
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN printf 'deb-src http://archive.ubuntu.com/ubuntu/ focal main restricted\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal-updates main restricted\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal universe\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal-updates universe\n' >> /etc/apt/sources.list
-
+RUN printf 'deb-src http://deb.debian.org/debian bookworm main\n\
+deb-src http://deb.debian.org/debian-security/ bookworm-security main\n\
+deb-src http://deb.debian.org/debian bookworm-updates main' >> /etc/apt/sources.list.d/deb-src.list
 
 RUN apt -y update && apt -y dist-upgrade
 
@@ -24,7 +22,7 @@ RUN apt -y update && apt -y build-dep r-base-core
 ARG rmajor
 ARG rversion
 RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cloud.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
-  tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure && make -j8 && make install && rm -rf /tmp/rbuild
+  tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure --enable-R-shlib --with-cairo --with-libpng --with-jpeglib && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/custom-pre-commands.sh /
 RUN bash -e /custom-pre-commands.sh
