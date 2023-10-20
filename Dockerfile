@@ -1,28 +1,15 @@
-FROM debian:12
+FROM rockylinux:8
 
-ENV DEBIAN_FRONTEND=noninteractive
+RUN yum -y upgrade
 
-RUN printf 'deb-src http://deb.debian.org/debian bookworm main\n\
-deb-src http://deb.debian.org/debian-security/ bookworm-security main\n\
-deb-src http://deb.debian.org/debian bookworm-updates main' >> /etc/apt/sources.list.d/deb-src.list
+RUN yum -y install epel-release yum-utils which findutils libxml2-devel zlib-devel openssl-devel wget cmake git
 
-RUN apt -y update && apt -y dist-upgrade
-
-RUN apt -y update && apt -y install curl locales locales-all bash tar gzip libxml2-dev zlib1g-dev libssl-dev wget
-
-RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
-	&& locale-gen en_US.utf8 \
-	&& /usr/sbin/update-locale LANG=en_US.UTF-8
-
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-
-RUN apt -y update && apt -y build-dep r-base-core
+RUN crb enable && yum-builddep -y R && yum -y install gdal-devel
 
 ARG rmajor
 ARG rversion
 RUN cd /tmp && mkdir rbuild && cd rbuild && curl -O https://cloud.r-project.org/src/base/R-$rmajor/R-$rversion.tar.gz && \
-  tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure --enable-R-shlib --with-cairo --with-libpng --with-jpeglib && make -j8 && make install && rm -rf /tmp/rbuild
+  tar zxf R-$rversion.tar.gz && cd R-$rversion/ && ./configure --enable-memory-profiling --enable-R-shlib --with-cairo --with-libpng --with-jpeglib && make -j8 && make install && rm -rf /tmp/rbuild
 
 COPY tmp/custom-pre-commands.sh /
 RUN bash -e /custom-pre-commands.sh
@@ -36,6 +23,12 @@ RUN bash -e /R-packages-bioc.sh
 COPY tmp/custom-commands.sh /
 RUN bash -e /custom-commands.sh
 
-RUN apt -y update && apt -y dist-upgrade
+# ENV RSTUDIO_SERVER_RPM=rstudio-server-rhel-2023.09.1-494-x86_64.rpm
+# RUN wget https://download2.rstudio.org/server/rhel8/x86_64/${RSTUDIO_SERVER_RPM?} && yum install -y ./${RSTUDIO_SERVER_RPM?} && rm -v ./${RSTUDIO_SERVER_RPM?}
+
+# Optional, recommended at https://docs.posit.co/resources/install-r-source/#optional-configure-r-to-use-a-different-blas-library
+# RUN mv /usr/local/lib64/R/lib/libRblas.so /usr/local/lib64/R/lib/libRblas.so.keep && ln -vs /usr/lib64/libopenblasp.so /usr/local/lib64/R/lib/libRblas.so
+
+RUN yum -y upgrade
 
 RUN date > /build-date
