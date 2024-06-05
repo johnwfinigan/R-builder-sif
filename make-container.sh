@@ -164,17 +164,19 @@ if [ "$makesif" = "YES" ] ; then
   "$container_cmd" build $container_builder_cache -t "$singularity_tag" .
   cd "$d"
 
-  "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile && sha256sum /out/savefile.sif" 
-
-  # docker cp could also work here, but cannot use it for the copy-in
-  # due to stdin source. so, potentially not worth dealing with need
-  # for a running container to connect to and then needing to clean it up
+  "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile && sha256sum /out/savefile.sif > /out/savefile.sha256" 
 
   # remove colons from sif file name, so that the file can be stored on Windows
   sif_name=$(echo "$container_name" | tr ':/' '_' )
-  "$container_cmd" run -i -v "$savevol:/out" --rm --entrypoint /bin/dd rockylinux:8 'if=/out/savefile.sif' 'bs=1M' > "${sif_name}.sif"
+
+  "$container_cmd" create -v "$savevol:/out" --name "copyhelper-${rand}" rockylinux:8
+  "$container_cmd" cp "copyhelper-${rand}:/out/savefile.sif" "${sif_name}.sif"
+  "$container_cmd" cp "copyhelper-${rand}:/out/savefile.sha256" "${sif_name}.sha256"
+  "$container_cmd" rm -f "copyhelper-${rand}"
   "$container_cmd" volume rm "$savevol"
+  sed -i "s@/out/savefile.sif@${sif_name}.sif@" "${sif_name}.sha256"
   echo Built "${sif_name}.sif from image $tagged_name"
+  cat "${sif_name}.sha256"
 fi
 
 if [ "$convert_only" = "NO" ] ; then
