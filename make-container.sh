@@ -169,12 +169,15 @@ if [ "$makesif" = "YES" ] ; then
   # remove colons from sif file name, so that the file can be stored on Windows
   sif_name=$(echo "$container_name" | tr ':/' '_' )
 
+  echo "Begin copy out sif file"
   "$container_cmd" create -v "$savevol:/out" --name "copyhelper-${rand}" rockylinux:8
   "$container_cmd" cp "copyhelper-${rand}:/out/savefile.sif" "${sif_name}.sif"
-  "$container_cmd" cp "copyhelper-${rand}:/out/savefile.sha256" "${sif_name}.sha256"
+  sha=$(mktemp)
+  "$container_cmd" cp "copyhelper-${rand}:/out/savefile.sha256" "$sha"
   "$container_cmd" rm -f "copyhelper-${rand}"
   "$container_cmd" volume rm "$savevol"
-  sed -i "s@/out/savefile.sif@${sif_name}.sif@" "${sif_name}.sha256"
+  sed "s@/out/savefile.sif@${sif_name}.sif@" < "$sha" > "${sif_name}.sha256"
+  rm "$sha"
   echo Built "${sif_name}.sif from image $tagged_name"
   cat "${sif_name}.sha256"
 fi
