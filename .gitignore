@@ -1,5 +1,6 @@
 *.save
 *.sif
+*.sha256
 packages.txt
 packages-bioc.txt
 packages-cran.txt
