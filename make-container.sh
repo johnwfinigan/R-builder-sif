@@ -164,7 +164,7 @@ if [ "$makesif" = "YES" ] ; then
   "$container_cmd" build $container_builder_cache -t "$singularity_tag" .
   cd "$d"
 
-  "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile"
+  "$container_cmd" run -v "$savevol:/out" --rm -it "$singularity_tag" bash -c "singularity build /out/savefile.sif docker-archive:///out/savefile && sha256sum /out/savefile.sif" 
 
   # docker cp could also work here, but cannot use it for the copy-in
   # due to stdin source. so, potentially not worth dealing with need
