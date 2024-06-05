@@ -1,13 +1,21 @@
 # R-builder-sif
 
 This is a tool for automating builds of R and R packages into a container. Both Docker
-format and Singularity format can be created. The tool is built to be usable on Linux and
-under Docker Desktop on Mac. There is now experimental support for Rancher Desktop on Mac and Podman on Linux.
+format and Apptainer (Singularity) format can be created. The tool is built to be usable on Linux and
+under Docker Desktop on Mac, but is designed to be container runtime agnostic, and any roughly Docker-compatible runtime should work.
 
 On Linux, your build machine must have Docker or Podman installed. 
-You do not need singularity installed on your build machine to use this tool to generate .sif files.
+You do not need Apptainer or Singularity installed on your build machine to use this tool to generate .sif files.
 
 ## News - read this if you used previous versions
+
+* Default Linux base image updated to Ubuntu 22.04, since 20.04 has less than a year left of standard support
+
+* Experimental support for using a Rocky Linux 8 base image: ```git fetch origin unstable-rocky8 && git checkout unstable-rocky8```
+
+* Default R updated to 4.4.0
+
+* Podman support now well tested and is the recommended container runtime on Linux: ```export R_BUILDER_SIF_CONTAINER_CMD=podman```
 
 * Bug fix: scripts are now all run with bash -e to ensure that they fail on first error
 
@@ -15,19 +23,17 @@ You do not need singularity installed on your build machine to use this tool to 
 
 * Added ability to specify a pre script using ```-e```. This is like the post script, but runs before CRAN and bioconductor package installs run. Useful for installing special build dependencies. 
 
-* convert-only mode: convert any pre-existing Docker format container to Singularity format, independent of R build functionality
+* convert-only mode: convert any pre-existing Docker format container to Apptainer format, independent of R build functionality
 
 * Singularity container export now done using Apptainer
 
-* You must pass ```-s``` to enable Singularity .sif file generation. sif generation is now off by default.
+* You must pass ```-s``` to enable Apptainer .sif file generation. sif generation is now off by default.
 
 * Default R version used, if you do not specify another, is now 4.2.2
 
 * Custom commands and bioconductor packages are now broken into separate container layers, enhancing build caching.
 
 * Experimental support for Rancher Desktop, tested on Mac! To use Rancher Desktop and nerdctl, ```export R_BUILDER_SIF_CONTAINER_CMD=nerdctl``` before running make-container.sh
-
-* Experimental support for podman on Linux: ```export R_BUILDER_SIF_CONTAINER_CMD=podman```
 
 ## How To - Build R container
 
@@ -41,9 +47,9 @@ you want to include, one name per line
 * ```./make-container.sh my-container-name```
 
 A docker image tagged with your container's name will be written to your local image storage.
-If you passed the ```-s``` option (described below), a Singularity .sif format container will be written to the current directory.
+If you passed the ```-s``` option (described below), a Apptainer .sif format container will be written to the current directory.
 
-## How To - Convert an Existing Container from Docker to Singularity format
+## How To - Convert an Existing Container from Docker to Apptainer format
 
 The container you want to convert must already be in your local registry. 
 You must either build it from a Dockerfile or pull it from a remote registry, before converting.
@@ -67,7 +73,7 @@ If you omit the tag, "latest" is implicitly used.
 
 ```make-container.sh``` will try to guess the right Bioconductor version for you without you needing to specificy it manually, though.
 
-### Turn on singularity .sif generation: -s 
+### Turn on Apptainer .sif generation: -s 
 
 ```./make-container.sh -s my-container-name```
 
