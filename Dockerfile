@@ -1,12 +1,11 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN printf 'deb-src http://archive.ubuntu.com/ubuntu/ focal main restricted\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal-updates main restricted\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal universe\n\
-deb-src http://archive.ubuntu.com/ubuntu/ focal-updates universe\n' >> /etc/apt/sources.list
-
+RUN printf 'deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted\n\
+deb-src http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted\n\
+deb-src http://archive.ubuntu.com/ubuntu/ jammy universe\n\
+deb-src http://archive.ubuntu.com/ubuntu/ jammy-updates universe\n' >> /etc/apt/sources.list
 
 RUN apt -y update && apt -y dist-upgrade
 
