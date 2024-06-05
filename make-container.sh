@@ -3,7 +3,7 @@
 set -e
 
 makesif=NO
-r_version=4.3.1
+r_version=4.4.0
 bioc_version=NONE
 post_script=NONE
 pre_script=NONE
@@ -123,7 +123,10 @@ if [ "$convert_only" = "NO" ] ; then
           bioc_version=3.16
           ;;
         4.3)
-          bioc_version=3.17
+          bioc_version=3.18
+          ;;
+        4.4)
+          bioc_version=3.19
           ;;
         *)
           echo "R major minor $r_major_minor" >&2
